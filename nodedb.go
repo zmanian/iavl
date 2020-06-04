@@ -146,14 +146,14 @@ func (ndb *nodeDB) SaveNode(node *Node, flushToDisk bool) {
 		panic(err)
 	}
 
-	if !node.saved {
-		node.saved = true
-		ndb.recentBatch.Set(ndb.nodeKey(node.hash), buf.Bytes())
-	}
 	if flushToDisk {
 		ndb.snapshotBatch.Set(ndb.nodeKey(node.hash), buf.Bytes())
+		ndb.recentBatch.Delete(ndb.nodeKey(node.hash))
 		node.persisted = true
 		node.saved = true
+	} else if !node.saved {
+		node.saved = true
+		ndb.recentBatch.Set(ndb.nodeKey(node.hash), buf.Bytes())
 	}
 }
 
